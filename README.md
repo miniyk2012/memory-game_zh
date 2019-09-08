@@ -2,8 +2,8 @@
 
 ## 目录
 
-- [说明](#instructions)
-- [贡献](#contributing)
+- [说明](#说明)
+- [贡献](#贡献)
 
 ## 说明
 
@@ -15,4 +15,4 @@
 
 ## 贡献
 
-此仓库是 _所有_ 优达学城学生的入门代码。 因此，我们很可能不会接受 pull requests 请求。有关详细信息，请查看 [CONTRIBUTING.md](CONTRIBUTING.md)。# memory-game_zh
+此仓库是 _所有_ 优达学城学生的入门代码。 因此，我们很可能不会接受 pull requests 请求。有关详细信息，请查看 [CONTRIBUTING.md](CONTRIBUTING.md)。
