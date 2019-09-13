@@ -26,6 +26,12 @@ function shuffle(array) {
     return array;
 }
 
+function htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content.firstChild;
+}
 
 /*
  * 设置一张卡片的事件监听器。 如果该卡片被点击：
@@ -37,93 +43,164 @@ function shuffle(array) {
  *    + 增加移动计数器并将其显示在页面上（将这个功能放在你从这个函数中调用的另一个函数中）
  *    + 如果所有卡都匹配，则显示带有最终分数的消息（将这个功能放在你从这个函数中调用的另一个函数中）
  */
-let openCard;
 
-function matchCard(card1, card2) {
-    let category1 = card1.firstElementChild;
-    let category2 = card2.firstElementChild;
-    if (!card1.classList.contains('open') || !card2.classList.contains('open')) {
-        return false;
+class Deck {
+    constructor(debug = false) {
+        this.debug = debug;
+        this.deck = document.querySelector('.deck');
+        this.restartButton = document.querySelector('.restart');
+        this.init();
+        this.init_deck2();
     }
-    return category1.classList[1] === category2.classList[1];
-}
 
-function turnOnCard(card) {
-    turnOffCard(card);
-    card.classList.add('open');
-    card.classList.add('show');
-}
+    init() {
+        this.firstCard = undefined;
+        this.secondCard = undefined;
+        this.total_match_num = 0;
+        this.move = 0;
+        document.querySelector('.moves').textContent = this.move;
+    }
 
-function turnOffCard(card) {
-    card.classList.remove('open');
-    card.classList.remove('show');
-    card.classList.remove('match');
-}
+    init_deck2() {
 
-function turnOffAfter(card, number) {
-    setTimeout(() => {
-        if (card.classList.contains('open')) {
-            turnOffCard(card);
+        if (!this.debug) {
+            return;
         }
-    }, number);
-}
-
-function turnOffBothAfter(card1, card2, number) {
-    setTimeout(() => {
-        if (card1.classList.contains('open')) {
-            turnOffCard(card1);
+        if (this.deck.nextSibling)
+            this.deck.nextSibling.remove();
+        if (this.deck.nextSibling)
+            this.deck.nextSibling.remove();
+        let answerHeader = htmlToElement('<h1>Answer</h1>');
+        let deck2 = htmlToElement('<ul class="deck" id="deck2"></ul>');
+        this.deck.parentNode.insertBefore(deck2, this.deck.nextSibling);
+        this.deck.parentNode.insertBefore(answerHeader, this.deck.nextSibling);
+        let cards = this.deck.querySelectorAll('.card');
+        let arrayCards = Array.prototype.slice.call(cards);
+        deck2.innerHTML = '';
+        for (let i = 0; i < arrayCards.length; i++) {
+            let newCard = arrayCards[i].cloneNode(true);
+            this.turnOnCard(newCard);
+            deck2.appendChild(newCard);
         }
-        if (card2.classList.contains('open')) {
-            turnOffCard(card2);
+    }
+
+    matchCard() {
+        let category1 = this.firstCard.firstElementChild;
+        let category2 = this.secondCard.firstElementChild;
+        return category1.classList[1] === category2.classList[1];
+    }
+
+    hasMatched(card) {
+        if (card == undefined)
+            return false;
+        return card.classList.contains('match');
+    }
+
+    turnOnCard(card) {
+        this.turnOffCard(card);
+        card.classList.add('open');
+        card.classList.add('show');
+    }
+
+    turnMatchCard(card) {
+        this.turnOffCard(card);
+        card.classList.add('match');
+    }
+
+    turnOffCard(card) {
+        card.classList.remove('open');
+        card.classList.remove('show');
+        card.classList.remove('match');
+    }
+
+    turnOffAfter(number) {
+        setTimeout(() => {
+            if (this.hasMatched(this.firstCard) || this.hasMatched(this.secondCard))
+                return;
+            if (this.firstCard != undefined)
+                this.turnOffCard(this.firstCard);
+            if (this.secondCard != undefined)
+                this.turnOffCard(this.secondCard);
+            this.firstCard = this.secondCard = undefined;
+        }, number);
+    }
+
+    shuffleCards() {
+        this.init();
+        let cards = this.deck.querySelectorAll('.card');
+        cards.forEach((card) => {
+            this.turnOffCard(card);
+        })
+        let arrayCards = Array.prototype.slice.call(cards);
+        shuffle(arrayCards);
+        this.deck.innerHTML = '';
+        for (let i = 0; i < arrayCards.length; i++) {
+            this.deck.appendChild(arrayCards[i]);
         }
-    }, number);
-}
-
-function turnMatchCard(card) {
-    turnOffCard(card);
-    card.classList.add('match');
-}
-
-function shuffleCards() {
-    let deck = document.querySelector('.deck');
-    let cards = deck.querySelectorAll('.card');
-    let arrayCards = Array.prototype.slice.call(cards);
-    shuffle(arrayCards);
-    deck.innerHTML = '';
-    for (let i = 0; i < arrayCards.length; i++) {
-        deck.appendChild(arrayCards[i]);
+        this.init_deck2();
     }
-}
 
-function selectOneCard(evt) {
-    if (!evt.target.className.includes('card')) {
-        return;
-    }
-    let card = evt.target;
-    if (card.classList.contains('match') || card.classList.contains('show')) {
-        return;
-    }
-    turnOnCard(card);
-    if (openCard === undefined) {
-        openCard = card;
-        turnOffAfter(card, 1000);
-    } else {
-        if (matchCard(openCard, card)) {
-            turnMatchCard(card);
-            turnMatchCard(openCard);
+
+    handelCard(card) {
+        if (this.firstCard != undefined && this.secondCard != undefined) {
+            return;
+        }
+        this.turnOnCard(card);
+        if (this.firstCard === undefined) {
+            this.firstCard = card;
+            this.turnOffAfter(1000);
         } else {
-            turnOffBothAfter(card, openCard, 1000);
+            this.secondCard = card;
+            if (this.matchCard()) {
+                this.turnMatchCard(this.firstCard);
+                this.turnMatchCard(this.secondCard);
+                this.firstCard = this.secondCard = undefined;
+                this.total_match_num += 2;
+                if (this.total_match_num == 16) {
+                    setTimeout(() => {
+                        alert('You win');
+                    }, 250);
+                }
+            }
         }
-        openCard = undefined;
+    }
+
+    canPlay(card) {
+        if (!card.className.includes('card')) {
+            return false;
+        }
+        if (card.classList.contains('match') || card.classList.contains('show')) {
+            return false;
+        }
+        return true;
+    }
+
+    addMove() {
+        if (this.firstCard != undefined && this.secondCard != undefined)
+            return;
+        this.move += 1;
+        document.querySelector('.moves').textContent = this.move;
+    }
+
+    selectOneCard(evt) {
+        let card = evt.target;
+        if (!this.canPlay(card)) {
+            return;
+        }
+        this.addMove();
+        this.handelCard(card);
+    }
+
+    addListeners() {
+        this.restartButton.addEventListener('click', (evt) => {
+            this.shuffleCards(evt)
+        });
+        this.deck.addEventListener('click', (evt) => {
+            this.selectOneCard(evt)
+        });
     }
 
 }
 
-function addListeners() {
-    let restartButton = document.querySelector('.restart');
-    restartButton.addEventListener('click', shuffleCards);
-    let deck = document.querySelector('.deck');
-    deck.addEventListener('click', selectOneCard);
-}
-
-addListeners();
+let deck = new Deck(true);
+deck.addListeners();
