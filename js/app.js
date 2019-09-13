@@ -158,7 +158,7 @@ class Deck {
                 this.total_match_num += 2;
                 if (this.total_match_num == 16) {
                     setTimeout(() => {
-                        alert('You win');
+                        swal('你赢了!', `你总共走了${this.move}步`, 'success');
                     }, 250);
                 }
             }
