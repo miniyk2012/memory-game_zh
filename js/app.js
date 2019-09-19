@@ -47,6 +47,7 @@ function htmlToElement(html) {
 class Deck {
     constructor(debug = false) {
         this.debug = debug;
+        this.clock = new Clock();
         this.deck = document.querySelector('.deck');
         this.restartButton = document.querySelector('.restart');
         this.init();
@@ -58,7 +59,10 @@ class Deck {
         this.secondCard = undefined;
         this.total_match_num = 0;
         this.move = 0;
+        this.canPlay = true;
         document.querySelector('.moves').textContent = this.move;
+        this.clock.reset();
+        this.clock.resume();
     }
 
     init_deck2() {
@@ -122,6 +126,7 @@ class Deck {
             if (this.secondCard != undefined)
                 this.turnOffCard(this.secondCard);
             this.firstCard = this.secondCard = undefined;
+            this.canPlay = true;
         }, number);
     }
 
@@ -140,9 +145,12 @@ class Deck {
         this.init_deck2();
     }
 
-
-    handelCard(card) {
-        if (this.firstCard != undefined && this.secondCard != undefined) {
+    /**
+     * 处理点击到的那张卡片
+     * @param {HTMLLIElement} card 
+     */
+    handleCard(card) {
+        if (!this.canPlay) {
             return;
         }
         this.turnOnCard(card);
@@ -151,21 +159,29 @@ class Deck {
             this.turnOffAfter(1000);
         } else {
             this.secondCard = card;
+            this.canPlay = false;
             if (this.matchCard()) {
                 this.turnMatchCard(this.firstCard);
                 this.turnMatchCard(this.secondCard);
                 this.firstCard = this.secondCard = undefined;
+                this.canPlay = true;
                 this.total_match_num += 2;
                 if (this.total_match_num == 16) {
-                    setTimeout(() => {
-                        swal('你赢了!', `你总共走了${this.move}步`, 'success');
-                    }, 250);
+                    this.congratulations();
                 }
             }
         }
     }
 
-    canPlay(card) {
+    congratulations() {
+        setTimeout(() => {
+            this.clock.stop();
+            swal('你赢了!', `你总共走了${this.move}步, 耗时${this.clock.toStr()}.`, 'success');
+        }, 250);
+    }
+
+
+    canClick(card) {
         if (!card.className.includes('card')) {
             return false;
         }
@@ -176,19 +192,24 @@ class Deck {
     }
 
     addMove() {
-        if (this.firstCard != undefined && this.secondCard != undefined)
+        if (!this.canPlay) {
             return;
+        }
         this.move += 1;
         document.querySelector('.moves').textContent = this.move;
     }
 
+    /**
+     * 点击卡片时, 触发翻牌动作
+     * @param {*} evt 
+     */
     selectOneCard(evt) {
         let card = evt.target;
-        if (!this.canPlay(card)) {
+        if (!this.canClick(card)) {
             return;
         }
         this.addMove();
-        this.handelCard(card);
+        this.handleCard(card);
     }
 
     addListeners() {
@@ -200,6 +221,41 @@ class Deck {
         });
     }
 
+}
+
+class Clock {
+    constructor() {
+        this.elapseTime = 0;
+        this.intervalID = undefined;
+        this.clockNode = document.querySelector('.clock');
+    }
+
+    reset() {
+        this.elapseTime = 0;
+        this.clockNode.textContent = this.toStr();
+        clearInterval(this.intervalID);
+    }
+
+    stop() {
+        clearInterval(this.intervalID);
+    }
+
+    elapse(seconds) {
+        this.elapseTime += seconds;
+    }
+
+    toStr() {
+        return `${this.elapseTime} s`
+    }
+
+    resume() {
+        let interval = 1000;
+        let self = this;
+        this.intervalID = window.setInterval(function () {
+            self.elapse(interval/1000);
+            self.clockNode.textContent = self.toStr();
+        }, interval);
+    }
 }
 
 let deck = new Deck(true);
