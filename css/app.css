@@ -33,27 +33,30 @@ h1 {
     font-weight: 300;
 }
 
+
+
 /*
  * Styles for the deck of cards
  */
 
 .deck {
-    width: 660px;
-    min-height: 680px;
+    width: 42vw;
+    height: 42vw;
+    padding: 1.4vw;
+    border-radius: 0.6vw;
+    box-shadow: 0.6vw 0.75vw 1vw 0 rgba(46, 61, 73, 0.5);
+    margin: 0 0 3em;
     background: linear-gradient(160deg, #02ccba 0%, #aa7ecd 100%);
-    padding: 32px;
-    border-radius: 10px;
-    box-shadow: 12px 15px 20px 0 rgba(46, 61, 73, 0.5);
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    margin: 0 0 3em;
 }
 
+
 .deck .card {
-    height: 125px;
-    width: 125px;
+    height: 23%;
+    width: 23%;
     background: #2e3d49;
     font-size: 0;
     color: #ffffff;
@@ -62,7 +65,7 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 5px 2px 20px 0 rgba(46, 61, 73, 0.5);
+    box-shadow: 0.25vw 2px 1vw 0 rgba(46, 61, 73, 0.5);
 }
 
 .deck .card.open {
@@ -72,48 +75,58 @@ h1 {
 }
 
 .deck .card.show {
-    font-size: 33px;
+    font-size: 2vw;
 }
 
 .deck .card.match {
     cursor: default;
     background: #02ccba;
-    font-size: 33px;
+    font-size: 2vw;
 }
 
 .deck .card.alert {
     cursor: default;
     background: #ff2011;
-    font-size: 33px;
+    font-size: 2vw;
 }
 
 /*
  * Styles for the Score Panel
  */
 
+
 .score-panel {
-    display: flex;
-    width: 345px;
-    margin-bottom: 10px;
+    flex-wrap: wrap-reverse;
+    width: 25vw;
+    margin-bottom: 1vw;
 }
 
 .score-panel .stars {
     margin: 0;
     padding: 0;
     display: inline-block;
-    margin: 0 5px 0 0;
+    margin: 0 0 0 10%;
 }
 
 .score-panel .stars li {
     list-style: none;
-    display: inline-block;
+    display: inline;
+}
+
+.score-panel .move-text {
+    margin: 0 0 0 10%;
+    display: inline-block
 }
 
 .score-panel .restart {
     cursor: pointer;
+    display: inline-block;
+    margin: 0 0 0 10%;
 }
 
 
 .score-panel .clock {
     margin: auto;
+    display: inline-block;
+    margin: 0 0 0 10%;
 }

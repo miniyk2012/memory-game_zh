@@ -272,8 +272,6 @@ class Stars {
             starNum = 3;
         } else if (move < 30) {
             starNum = 2;
-        } else if (move < 40) {
-            starNum = 1;
         } else {
             starNum = 0;
         }
@@ -314,7 +312,7 @@ class Clock {
     }
 
     toStr() {
-        return `${this.elapseTime} s`
+        return `${this.elapseTime}s`
     }
 
     resume() {
