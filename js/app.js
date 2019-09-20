@@ -273,7 +273,7 @@ class Stars {
         } else if (move < 30) {
             starNum = 2;
         } else {
-            starNum = 0;
+            starNum = 1;
         }
         this.starNum = starNum;
         return starNum;
