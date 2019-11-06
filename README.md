@@ -13,9 +13,9 @@
 
 ## 说明
 
-代码逻辑见`js/app.js`
-弹窗使用了: `sweetalert.js`
-动画效果使用了: `animate.css`
+- 代码逻辑见`js/app.js`
+- 弹窗使用了: `sweetalert.js`
+- 动画效果使用了: `animate.css`
 
 
 ## 贡献
